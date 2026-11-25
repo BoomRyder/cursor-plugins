@@ -1,0 +1,75 @@
+name: Sync superpowers
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 16 * * 1"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Copy upstream files
+        run: |
+          set -euo pipefail
+          plugin="plugins/superpowers"
+          manifest="$plugin/.cursor-plugin/plugin.json"
+          tmp=$(mktemp -d)
+          trap 'rm -rf "$tmp"' EXIT
+          git clone --depth 1 --branch main https://github.com/obra/superpowers.git "$tmp/src"
+          sha=$(git -C "$tmp/src" rev-parse HEAD)
+          test -n "$sha"
+          rm -rf "$plugin/.cursor-plugin" "$plugin/skills" "$plugin/hooks" "$plugin/LICENSE"
+          cp -a "$tmp/src/.cursor-plugin" "$plugin/.cursor-plugin"
+          cp -a "$tmp/src/skills" "$plugin/skills"
+          cp -a "$tmp/src/hooks" "$plugin/hooks"
+          cp -a "$tmp/src/LICENSE" "$plugin/LICENSE"
+          grep -q "MIT License" "$plugin/LICENSE"
+          grep -q "Jesse Vincent" "$plugin/LICENSE"
+          test -f "$plugin/hooks/hooks-cursor.json"
+          python -c "import json,sys; m=json.load(open(sys.argv[1])); assert m['name']=='superpowers' and m['version']" "$manifest"
+          mapfile -t skill_dirs < <(find "$plugin/skills" -mindepth 1 -maxdepth 1 -type d)
+          test "${#skill_dirs[@]}" -ge 1
+          for dir in "${skill_dirs[@]}"; do
+            test -f "$dir/SKILL.md"
+          done
+          python - "$manifest" "$plugin/UPSTREAM.json" "$sha" <<'PY'
+          import json, pathlib, sys
+          manifest, record_path, sha = sys.argv[1:]
+          version = json.loads(pathlib.Path(manifest).read_text(encoding="utf-8"))["version"]
+          pathlib.Path(record_path).write_text(json.dumps({
+              "repository": "https://github.com/obra/superpowers",
+              "commit": sha,
+              "ref": "main",
+              "version": version,
+              "license": "MIT",
+              "paths": [".cursor-plugin", "skills", "hooks", "LICENSE"],
+          }, indent=2) + "\n", encoding="utf-8", newline="\n")
+          print(f"synced superpowers {version} ({sha})")
+          PY
+
+      - name: Open a pull request when upstream moved
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git add -A
+          if git diff --cached --quiet; then
+            echo "superpowers is already at upstream"
+            exit 0
+          fi
+          sha=$(python -c "import json; print(json.load(open('plugins/superpowers/UPSTREAM.json'))['commit'][:12])")
+          branch="sync/superpowers-$sha"
+          if git ls-remote --exit-code --heads origin "refs/heads/$branch" >/dev/null; then
+            echo "branch $branch already exists"
+            exit 0
+          fi
+          git checkout -b "$branch"
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -m "Sync superpowers from upstream."
+          git push --set-upstream origin "$branch"
+          gh pr create --title "Sync superpowers from upstream" --body "Updates the vendored Cursor plugin files to obra/superpowers@${sha}. The manifest, skills, hooks, and LICENSE stay upstream's. Review the diff, then merge."

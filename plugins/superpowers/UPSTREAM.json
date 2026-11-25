@@ -1,0 +1,8 @@
+{
+  "repository": "https://github.com/obra/superpowers",
+  "commit": "22f0b463e7a5e579904dd6211a520321035526f7",
+  "ref": "main",
+  "version": "7.0.2",
+  "license": "MIT",
+  "paths": [".cursor-plugin", "skills", "hooks", "LICENSE"]
+}

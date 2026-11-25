@@ -5,8 +5,8 @@
     "name": "BoomRyder"
   },
   "metadata": {
-    "description": "Cursor plugins developed for Import from GitHub. The first plugin is ponytail.",
-    "version": "1.0.0",
+    "description": "Cursor plugins. Ponytail and Superpowers are synced from their upstream repositories.",
+    "version": "1.1.0",
     "pluginRoot": "plugins"
   },
   "plugins": [
@@ -18,6 +18,15 @@
       "keywords": ["ponytail", "yagni", "skills"],
       "homepage": "https://github.com/DietrichGebert/ponytail",
       "repository": "https://github.com/DietrichGebert/ponytail"
+    },
+    {
+      "name": "superpowers",
+      "source": "superpowers",
+      "description": "Core skills library: TDD, debugging, collaboration patterns, and proven techniques",
+      "license": "MIT",
+      "keywords": ["skills", "tdd", "debugging", "collaboration", "workflows"],
+      "homepage": "https://github.com/obra/superpowers",
+      "repository": "https://github.com/obra/superpowers"
     }
   ]
 }
