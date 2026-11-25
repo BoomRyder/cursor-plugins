@@ -1,0 +1,40 @@
+name: Sync ponytail
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 16 * * 1"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Copy upstream files
+        shell: pwsh
+        run: ./scripts/sync-ponytail.ps1
+
+      - name: Open a pull request when upstream moved
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git add -A
+          if git diff --cached --quiet; then
+            echo "ponytail is already at upstream"
+            exit 0
+          fi
+          sha=$(python -c "import json; print(json.load(open('plugins/ponytail/UPSTREAM.json'))['commit'][:12])")
+          branch="sync/ponytail-$sha"
+          if git ls-remote --exit-code --heads origin "refs/heads/$branch" >/dev/null; then
+            echo "branch $branch already exists"
+            exit 0
+          fi
+          git checkout -b "$branch"
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -m "Sync ponytail from upstream."
+          git push --set-upstream origin "$branch"
+          gh pr create --title "Sync ponytail from upstream" --body "Updates the vendored ponytail files to DietrichGebert/ponytail@${sha}. The skill, hook, rule, and LICENSE bytes stay upstream's. Review the diff, then merge."

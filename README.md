@@ -14,6 +14,7 @@ plugins/ponytail/hooks/                  # 上游原文
 plugins/ponytail/.cursor/rules/          # 上游原文，不作为插件规则加载
 plugins/ponytail/LICENSE                 # 上游 MIT
 scripts/sync-ponytail.ps1
+.github/workflows/sync-ponytail.yml      # 上游更新时开拉取请求
 ```
 
 每个插件放在 `plugins/<name>/`，并且自己有一份 `.cursor-plugin/plugin.json`。`metadata.pluginRoot` 是 `plugins`，所以清单里的 `source` 只写目录名。
@@ -33,17 +34,17 @@ scripts/sync-ponytail.ps1
 
 ## 同步上游
 
+Cursor 导入市场时只读取这一个仓库里的文件。`marketplace.json` 的 `source` 是目录路径，不能写成 `DietrichGebert/ponytail`。因此上游内容必须进本仓库，不能靠 submodule：导入方不会递归检出 submodule，插件目录会是空的。
+
+也不把本仓库做成上游的 fork。Fork 的 “Sync fork” 同步的是整个 ponytail 项目，而这个仓库的根是多插件市场，后面还会放别的插件。
+
+跟踪上游的方式是 GitHub Action `.github/workflows/sync-ponytail.yml`。它每周一，或在 Actions 里手动运行 **Sync ponytail**。有差异时会开一个拉取请求，合并后 Cursor 的自动刷新才会拿到新文件。技能、钩子、规则和 `LICENSE` 仍按原字节复制，只更新 `UPSTREAM.json` 和插件清单里的版本号。
+
+本机需要立刻对齐时，仍可运行同一份脚本：
+
 ```powershell
 pwsh -File scripts/sync-ponytail.ps1
 ```
-
-跟踪其他分支或标签时：
-
-```powershell
-pwsh -File scripts/sync-ponytail.ps1 -Ref main
-```
-
-脚本会重新复制 `skills/`、`hooks/`、`.cursor/rules/` 和 `LICENSE`，并改写插件清单里的 `version`，使它与上游 `package.json` 一致。
 
 ## 在 Cursor 里添加
 
