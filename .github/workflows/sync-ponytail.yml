@@ -16,8 +16,48 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Copy upstream files
-        shell: pwsh
-        run: ./scripts/sync-ponytail.ps1
+        run: |
+          set -euo pipefail
+          plugin="plugins/ponytail"
+          manifest="$plugin/.cursor-plugin/plugin.json"
+          tmp=$(mktemp -d)
+          trap 'rm -rf "$tmp"' EXIT
+          git clone --depth 1 --branch main https://github.com/DietrichGebert/ponytail.git "$tmp/src"
+          sha=$(git -C "$tmp/src" rev-parse HEAD)
+          version=$(python -c "import json; print(json.load(open('$tmp/src/package.json'))['version'])")
+          test -n "$sha"
+          test -n "$version"
+          rm -rf "$plugin/skills" "$plugin/hooks" "$plugin/.cursor" "$plugin/LICENSE"
+          cp -a "$tmp/src/skills" "$plugin/skills"
+          cp -a "$tmp/src/hooks" "$plugin/hooks"
+          mkdir -p "$plugin/.cursor/rules"
+          cp -a "$tmp/src/.cursor/rules/." "$plugin/.cursor/rules/"
+          cp -a "$tmp/src/LICENSE" "$plugin/LICENSE"
+          grep -q "MIT License" "$plugin/LICENSE"
+          grep -q "DietrichGebert" "$plugin/LICENSE"
+          mapfile -t skill_dirs < <(find "$plugin/skills" -mindepth 1 -maxdepth 1 -type d)
+          test "${#skill_dirs[@]}" -ge 1
+          for dir in "${skill_dirs[@]}"; do
+            test -f "$dir/SKILL.md"
+          done
+          python - "$manifest" "$version" "$plugin/UPSTREAM.json" "$sha" <<'PY'
+          import json, pathlib, re, sys
+          manifest, version, record_path, sha = sys.argv[1:]
+          text = pathlib.Path(manifest).read_text(encoding="utf-8")
+          updated, count = re.subn(r'("version"\s*:\s*")[^"]*"', r'\g<1>' + version + '"', text, count=1)
+          if count != 1:
+              raise SystemExit("plugin.json has no version field")
+          pathlib.Path(manifest).write_text(updated, encoding="utf-8", newline="\n")
+          pathlib.Path(record_path).write_text(json.dumps({
+              "repository": "https://github.com/DietrichGebert/ponytail",
+              "commit": sha,
+              "ref": "main",
+              "version": version,
+              "license": "MIT",
+              "paths": ["skills", "hooks", ".cursor/rules", "LICENSE"],
+          }, indent=2) + "\n", encoding="utf-8", newline="\n")
+          print(f"synced ponytail {version} ({sha})")
+          PY
 
       - name: Open a pull request when upstream moved
         env:

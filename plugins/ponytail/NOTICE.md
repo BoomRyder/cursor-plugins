@@ -3,7 +3,7 @@ verbatim from https://github.com/DietrichGebert/ponytail at the commit recorded
 in `UPSTREAM.json`.
 
 Copyright (c) 2026 DietrichGebert. Those files stay under the upstream MIT license.
-Do not edit them in this repository. Update them with `scripts/sync-ponytail.ps1`.
+Do not edit them in this repository. The Sync ponytail GitHub Action updates them.
 
 This Cursor package does not load `.cursor/rules/ponytail.mdc` as a plugin rule.
 Upstream treats that always-on rule and the session hooks as two different Cursor
