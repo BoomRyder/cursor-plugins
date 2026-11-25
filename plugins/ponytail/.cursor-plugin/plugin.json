@@ -1,0 +1,16 @@
+{
+  "name": "ponytail",
+  "displayName": "Ponytail",
+  "description": "Lazy senior dev mode. The smallest change that fully solves the task.",
+  "version": "5.3.3",
+  "author": {
+    "name": "Dietrich Gebert"
+  },
+  "homepage": "https://github.com/DietrichGebert/ponytail",
+  "repository": "https://github.com/DietrichGebert/ponytail",
+  "license": "MIT",
+  "keywords": ["ponytail", "yagni", "skills"],
+  "skills": "./skills/",
+  "hooks": "./.cursor-plugin/hooks.json"
+}
+

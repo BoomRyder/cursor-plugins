@@ -1,0 +1,56 @@
+# Cursor Plugins
+
+这个仓库是一个 Cursor 插件市场。在 Cursor 的 Customize 里用 **Add Marketplace → Import from GitHub** 贴上本仓库地址后，Cursor 会读取根目录的 `.cursor-plugin/marketplace.json`，并按其中的 `plugins` 列表安装插件。
+
+当前只有第一个插件：`ponytail`。
+
+## 目录
+
+```text
+.cursor-plugin/marketplace.json          # 市场清单
+plugins/ponytail/.cursor-plugin/plugin.json
+plugins/ponytail/skills/                 # 上游原文
+plugins/ponytail/hooks/                  # 上游原文
+plugins/ponytail/.cursor/rules/          # 上游原文，不作为插件规则加载
+plugins/ponytail/LICENSE                 # 上游 MIT
+scripts/sync-ponytail.ps1
+```
+
+每个插件放在 `plugins/<name>/`，并且自己有一份 `.cursor-plugin/plugin.json`。`metadata.pluginRoot` 是 `plugins`，所以清单里的 `source` 只写目录名。
+
+## ponytail
+
+技能、钩子脚本、Cursor 规则文件和 `LICENSE` 从 [DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail) 原样复制。版权是 DietrichGebert，协议是 MIT，原文在 `plugins/ponytail/LICENSE`。这些文件不要在本仓库里改。对应的上游提交记在 `plugins/ponytail/UPSTREAM.json`。
+
+本仓库自己写的只有市场清单、插件清单，以及 `.cursor-plugin/hooks.json`。上游的 `hooks/cursor-hooks.json` 里命令还是安装器才会替换的 `PONYTAIL_DIR` 占位符，插件运行时改成相对路径调用同一批上游脚本：
+
+- `node ./hooks/ponytail-activate.js`
+- `node ./hooks/ponytail-mode-tracker.js`
+
+上游把「项目里的 always-on 规则」和「会话钩子」分成两种 Cursor 装法。规则一旦生效就不能按 lite / full / ultra / off 切换。这个插件走钩子，所以 `.cursor/rules/ponytail.mdc` 只随上游保存，不放进插件的 `rules/`，清单里也不声明 `rules`。
+
+上游仓库根目录的 `plugin.json` 只有 `{"name":"ponytail"}`，没有 Agent Plugins 要求的 `$schema`。带上它会让符合该规范的客户端拒绝整个插件，所以不同步这个文件。Cursor 的 Import from GitHub 使用的是 `.cursor-plugin/plugin.json`。
+
+## 同步上游
+
+```powershell
+pwsh -File scripts/sync-ponytail.ps1
+```
+
+跟踪其他分支或标签时：
+
+```powershell
+pwsh -File scripts/sync-ponytail.ps1 -Ref main
+```
+
+脚本会重新复制 `skills/`、`hooks/`、`.cursor/rules/` 和 `LICENSE`，并改写插件清单里的 `version`，使它与上游 `package.json` 一致。
+
+## 在 Cursor 里添加
+
+1. 打开 Customize。
+2. 点 **Add Marketplace**，选 **Import from GitHub**。
+3. 填入本仓库的 GitHub 地址。
+4. 在列表里安装 **Ponytail**。
+5. 执行 **Developer: Reload Window**。
+
+私有仓库需要在导入时授权 Cursor GitHub App 读取该仓库。这个仓库默认公开，因为 ponytail 本身已是公开的 MIT 项目。

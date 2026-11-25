@@ -1,0 +1,23 @@
+{
+  "name": "cursor-plugins",
+  "displayName": "Cursor Plugins",
+  "owner": {
+    "name": "BoomRyder"
+  },
+  "metadata": {
+    "description": "Cursor plugins developed for Import from GitHub. The first plugin is ponytail.",
+    "version": "1.0.0",
+    "pluginRoot": "plugins"
+  },
+  "plugins": [
+    {
+      "name": "ponytail",
+      "source": "ponytail",
+      "description": "Lazy senior dev mode. The smallest change that fully solves the task.",
+      "license": "MIT",
+      "keywords": ["ponytail", "yagni", "skills"],
+      "homepage": "https://github.com/DietrichGebert/ponytail",
+      "repository": "https://github.com/DietrichGebert/ponytail"
+    }
+  ]
+}
