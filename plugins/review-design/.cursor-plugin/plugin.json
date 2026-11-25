@@ -1,8 +1,8 @@
 {
   "name": "review-design",
   "displayName": "Review Design",
-  "description": "Code review for pull requests, and frontend design for distinctive UI.",
-  "version": "1.0.0",
+  "description": "Code review, frontend design, and shared language and execution rules.",
+  "version": "1.1.0",
   "author": {
     "name": "Anthropic"
   },

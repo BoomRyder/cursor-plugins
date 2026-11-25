@@ -8,7 +8,7 @@
 | `superpowers` | [obra/superpowers](https://github.com/obra/superpowers) | TDD、调试和协作流程 |
 | `document` | [anthropics/skills](https://github.com/anthropics/skills) | Word、PDF、PowerPoint、Excel |
 | `aihero` | [mattpocock/skills](https://github.com/mattpocock/skills) | 规格、工单、TDD、代码评审 |
-| `review-design` | [anthropics/claude-plugins-official](https://github.com/anthropics/claude-plugins-official) | 代码评审和前端设计 |
+| `review-design` | [anthropics/claude-plugins-official](https://github.com/anthropics/claude-plugins-official) | 代码评审、前端设计，以及通用的语言和执行底线 |
 
 ## 安装
 

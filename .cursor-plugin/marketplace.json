@@ -49,7 +49,7 @@
     {
       "name": "review-design",
       "source": "review-design",
-      "description": "Code review for pull requests, and frontend design for distinctive UI.",
+      "description": "Code review, frontend design, and shared language and execution rules.",
       "license": "Apache-2.0",
       "keywords": ["code-review", "frontend", "design"],
       "homepage": "https://github.com/anthropics/claude-plugins-official",
