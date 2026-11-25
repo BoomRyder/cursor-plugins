@@ -1,0 +1,93 @@
+name: Sync aihero
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 16 * * 1"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Copy upstream files
+        run: |
+          set -euo pipefail
+          plugin="plugins/aihero"
+          tmp=$(mktemp -d)
+          trap 'rm -rf "$tmp"' EXIT
+          git clone --depth 1 --branch main https://github.com/mattpocock/skills.git "$tmp/src"
+          sha=$(git -C "$tmp/src" rev-parse HEAD)
+          test -n "$sha"
+          SRC="$tmp/src" PLUGIN="$plugin" SHA="$sha" python - <<'PY'
+          import json, os, pathlib, re, shutil
+          src = pathlib.Path(os.environ["SRC"])
+          plugin = pathlib.Path(os.environ["PLUGIN"])
+          sha = os.environ["SHA"]
+          upstream = json.loads((src / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8"))
+          version = upstream["version"]
+          license_text = (src / "LICENSE").read_text(encoding="utf-8")
+          if "MIT License" not in license_text or "Matt Pocock" not in license_text:
+              raise SystemExit("upstream LICENSE is not the expected MIT notice")
+          dest = plugin / "skills"
+          if dest.exists():
+              shutil.rmtree(dest)
+          dest.mkdir(parents=True)
+          seen = set()
+          for rel in upstream["skills"]:
+              rel = rel[2:] if rel.startswith("./") else rel
+              folder = src / rel
+              name = folder.name
+              if name in seen:
+                  raise SystemExit(f"duplicate skill name {name}")
+              seen.add(name)
+              target = dest / name
+              shutil.copytree(folder, target)
+              skill = target / "SKILL.md"
+              if not skill.is_file():
+                  raise SystemExit(f"missing SKILL.md in {name}")
+          if len(seen) < 1:
+              raise SystemExit("upstream published no skills")
+          shutil.copyfile(src / "LICENSE", plugin / "LICENSE")
+          manifest = plugin / ".cursor-plugin" / "plugin.json"
+          text = manifest.read_text(encoding="utf-8")
+          updated, count = re.subn(r'("version"\s*:\s*")[^"]*"', rf'\g<1>{version}"', text, count=1)
+          if count != 1:
+              raise SystemExit("plugin.json has no version field")
+          manifest.write_text(updated, encoding="utf-8", newline="\n")
+          record = {
+              "repository": "https://github.com/mattpocock/skills",
+              "commit": sha,
+              "ref": "main",
+              "version": version,
+              "license": "MIT",
+              "paths": ["skills"],
+          }
+          (plugin / "UPSTREAM.json").write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8", newline="\n")
+          print(f"synced aihero {version} ({sha}) {len(seen)} skills")
+          PY
+
+      - name: Open a pull request when upstream moved
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git add -A
+          if git diff --cached --quiet; then
+            echo "aihero is already at upstream"
+            exit 0
+          fi
+          sha=$(python -c "import json; print(json.load(open('plugins/aihero/UPSTREAM.json'))['commit'][:12])")
+          branch="sync/aihero-$sha"
+          if git ls-remote --exit-code --heads origin "refs/heads/$branch" >/dev/null; then
+            echo "branch $branch already exists"
+            exit 0
+          fi
+          git checkout -b "$branch"
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -m "Sync aihero from upstream."
+          git push --set-upstream origin "$branch"
+          gh pr create --title "Sync aihero from upstream" --body "Updates the vendored skills to mattpocock/skills@${sha}. Skill bytes and the MIT license stay upstream's. Review the diff, then merge."

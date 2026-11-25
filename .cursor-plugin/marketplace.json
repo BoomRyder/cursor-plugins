@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Cursor plugins synced from their upstream repositories.",
-    "version": "1.2.0",
+    "version": "1.3.0",
     "pluginRoot": "plugins"
   },
   "plugins": [
@@ -36,6 +36,15 @@
       "keywords": ["documents", "docx", "pdf", "pptx", "xlsx"],
       "homepage": "https://github.com/anthropics/skills",
       "repository": "https://github.com/anthropics/skills"
+    },
+    {
+      "name": "aihero",
+      "source": "aihero",
+      "description": "Matt Pocock's skills for real engineering: grilling, specs, tickets, TDD, code review, and domain modelling.",
+      "license": "MIT",
+      "keywords": ["engineering", "skills", "tdd", "code-review", "grilling"],
+      "homepage": "https://www.aihero.dev",
+      "repository": "https://github.com/mattpocock/skills"
     }
   ]
 }
