@@ -1,4 +1,4 @@
-name: Sync document-skills
+name: Sync document
 
 on:
   workflow_dispatch:
@@ -18,7 +18,7 @@ jobs:
       - name: Copy upstream files
         run: |
           set -euo pipefail
-          plugin="plugins/document-skills"
+          plugin="plugins/document"
           names=(docx pdf pptx xlsx)
           tmp=$(mktemp -d)
           trap 'rm -rf "$tmp"' EXIT
@@ -47,7 +47,7 @@ jobs:
               "license": "Apache-2.0",
               "paths": ["skills/docx", "skills/pdf", "skills/pptx", "skills/xlsx", "THIRD_PARTY_NOTICES.md", "LICENSE"],
           }, indent=2) + "\n", encoding="utf-8", newline="\n")
-          print(f"synced document-skills ({sha})")
+          print(f"synced document ({sha})")
           PY
 
       - name: Open a pull request when upstream moved
@@ -56,16 +56,16 @@ jobs:
         run: |
           git add -A
           if git diff --cached --quiet; then
-            echo "document-skills is already at upstream"
+            echo "document is already at upstream"
             exit 0
           fi
-          sha=$(python -c "import json; print(json.load(open('plugins/document-skills/UPSTREAM.json'))['commit'][:12])")
-          branch="sync/document-skills-$sha"
+          sha=$(python -c "import json; print(json.load(open('plugins/document/UPSTREAM.json'))['commit'][:12])")
+          branch="sync/document-$sha"
           if git ls-remote --exit-code --heads origin "refs/heads/$branch" >/dev/null; then
             echo "branch $branch already exists"
             exit 0
           fi
           git checkout -b "$branch"
-          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -m "Sync document-skills from upstream."
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -m "Sync document from upstream."
           git push --set-upstream origin "$branch"
-          gh pr create --title "Sync document-skills from upstream" --body "Updates the vendored docx, pdf, pptx, and xlsx skills to anthropics/skills@${sha}. The skill files and Apache license stay upstream's. Review the diff, then merge."
+          gh pr create --title "Sync document from upstream" --body "Updates the vendored docx, pdf, pptx, and xlsx skills to anthropics/skills@${sha}. The skill files and Apache license stay upstream's. Review the diff, then merge."

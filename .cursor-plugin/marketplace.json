@@ -5,8 +5,8 @@
     "name": "BoomRyder"
   },
   "metadata": {
-    "description": "Cursor plugins synced from their upstream repositories.",
-    "version": "1.3.0",
+    "description": "个人 Cursor 插件市场。ponytail、superpowers、document、aihero 从各自上游同步。",
+    "version": "1.4.0",
     "pluginRoot": "plugins"
   },
   "plugins": [
@@ -29,8 +29,8 @@
       "repository": "https://github.com/obra/superpowers"
     },
     {
-      "name": "document-skills",
-      "source": "document-skills",
+      "name": "document",
+      "source": "document",
       "description": "Word, Excel, PowerPoint, and PDF skills for everyday documents.",
       "license": "Apache-2.0",
       "keywords": ["documents", "docx", "pdf", "pptx", "xlsx"],

@@ -1,6 +1,6 @@
 {
-  "name": "document-skills",
-  "displayName": "Document Skills",
+  "name": "document",
+  "displayName": "Document",
   "description": "Word, Excel, PowerPoint, and PDF skills for everyday documents.",
   "version": "1.0.0",
   "author": {
