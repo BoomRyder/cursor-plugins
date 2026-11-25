@@ -5,8 +5,8 @@
     "name": "BoomRyder"
   },
   "metadata": {
-    "description": "Cursor plugins. Ponytail and Superpowers are synced from their upstream repositories.",
-    "version": "1.1.0",
+    "description": "Cursor plugins synced from their upstream repositories.",
+    "version": "1.2.0",
     "pluginRoot": "plugins"
   },
   "plugins": [
@@ -27,6 +27,15 @@
       "keywords": ["skills", "tdd", "debugging", "collaboration", "workflows"],
       "homepage": "https://github.com/obra/superpowers",
       "repository": "https://github.com/obra/superpowers"
+    },
+    {
+      "name": "document-skills",
+      "source": "document-skills",
+      "description": "Word, Excel, PowerPoint, and PDF skills for everyday documents.",
+      "license": "Apache-2.0",
+      "keywords": ["documents", "docx", "pdf", "pptx", "xlsx"],
+      "homepage": "https://github.com/anthropics/skills",
+      "repository": "https://github.com/anthropics/skills"
     }
   ]
 }

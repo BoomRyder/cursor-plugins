@@ -2,7 +2,7 @@
 
 这个仓库是一个 Cursor 插件市场。在 Cursor 的 Customize 里用 **Add Marketplace → Import from GitHub** 贴上本仓库地址后，Cursor 会读取根目录的 `.cursor-plugin/marketplace.json`，并按其中的 `plugins` 列表安装插件。
 
-当前有两个插件：`ponytail` 和 `superpowers`。
+当前有三个插件：`ponytail`、`superpowers` 和 `document-skills`。
 
 ## 目录
 
@@ -17,8 +17,11 @@ plugins/superpowers/.cursor-plugin/      # 上游 Cursor 清单
 plugins/superpowers/skills/              # 上游原文
 plugins/superpowers/hooks/               # 上游原文
 plugins/superpowers/LICENSE              # 上游 MIT
+plugins/document-skills/skills/         # docx、pdf、pptx、xlsx，上游原文
+plugins/document-skills/LICENSE          # 上游 Apache-2.0
 .github/workflows/sync-ponytail.yml
 .github/workflows/sync-superpowers.yml
+.github/workflows/sync-document-skills.yml
 ```
 
 每个插件放在 `plugins/<name>/`，并且自己有一份 `.cursor-plugin/plugin.json`。`metadata.pluginRoot` 是 `plugins`，所以清单里的 `source` 只写目录名。
@@ -44,20 +47,28 @@ Cursor 插件清单、技能、钩子和 `LICENSE` 从 [obra/superpowers](https:
 
 如果官方市场里的 Superpowers 也装着，Cursor 会两份一起加载。留一份即可。
 
+## document-skills
+
+名称用上游对这四项的叫法：[anthropics/skills](https://github.com/anthropics/skills) 里的 `document-skills`。包含 `docx`、`pdf`、`pptx`、`xlsx`，对应 Word、PDF、PowerPoint 和 Excel。
+
+技能文件、每项目录里的 `LICENSE.txt`、插件根目录的 `LICENSE` 和 `THIRD_PARTY_NOTICES.md` 都从上游原样复制。协议是 Apache-2.0，版权是 Anthropic。对应提交记在 `plugins/document-skills/UPSTREAM.json`，当前是 `e4bb5d960d87126ff3b3a8af1a104b7db67560ba`。
+
+仓库根目录的 MIT 只覆盖本仓库自己写的市场文件。它不替换这些技能自带的 Apache 许可证。
+
 ## 同步上游
 
 Cursor 导入市场时只读取这一个仓库里的文件。`marketplace.json` 的 `source` 是目录路径，不能写成 `DietrichGebert/ponytail`。因此上游内容必须进本仓库，不能靠 submodule：导入方不会递归检出 submodule，插件目录会是空的。
 
 也不把本仓库做成上游的 fork。Fork 的 “Sync fork” 同步的是整个 ponytail 项目，而这个仓库的根是多插件市场，后面还会放别的插件。
 
-跟踪上游的方式是两个 GitHub Action。每周一，或在 Actions 里手动运行 **Sync ponytail** 和 **Sync superpowers**。有差异时各自开一个拉取请求，合并后 Cursor 的自动刷新才会拿到新文件。上游文件按原字节复制，只更新对应的 `UPSTREAM.json`。ponytail 还会把插件清单里的版本号改成上游 `package.json` 的版本。
+跟踪上游的方式是三个 GitHub Action。每周一，或在 Actions 里手动运行 **Sync ponytail**、**Sync superpowers** 和 **Sync document-skills**。有差异时各自开一个拉取请求，合并后 Cursor 的自动刷新才会拿到新文件。上游文件按原字节复制，只更新对应的 `UPSTREAM.json`。ponytail 还会把插件清单里的版本号改成上游 `package.json` 的版本。
 
 ## 在 Cursor 里添加
 
 1. 打开 Customize。
 2. 点 **Add Marketplace**，选 **Import from GitHub**。
 3. 填入本仓库的 GitHub 地址。
-4. 在列表里安装 **Ponytail** 和 **Superpowers**。
+4. 在列表里安装 **Ponytail**、**Superpowers** 和 **Document Skills**。
 5. 执行 **Developer: Reload Window**。
 
 私有仓库需要在导入时授权 Cursor GitHub App 读取该仓库。这个仓库默认公开，因为 ponytail 本身已是公开的 MIT 项目。

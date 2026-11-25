@@ -1,0 +1,8 @@
+{
+  "repository": "https://github.com/anthropics/skills",
+  "commit": "e4bb5d960d87126ff3b3a8af1a104b7db67560ba",
+  "ref": "main",
+  "version": "1.0.0",
+  "license": "Apache-2.0",
+  "paths": ["skills/docx", "skills/pdf", "skills/pptx", "skills/xlsx", "THIRD_PARTY_NOTICES.md", "LICENSE"]
+}

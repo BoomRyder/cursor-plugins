@@ -1,0 +1,14 @@
+{
+  "name": "document-skills",
+  "displayName": "Document Skills",
+  "description": "Word, Excel, PowerPoint, and PDF skills for everyday documents.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Anthropic"
+  },
+  "homepage": "https://github.com/anthropics/skills",
+  "repository": "https://github.com/anthropics/skills",
+  "license": "Apache-2.0",
+  "keywords": ["documents", "docx", "pdf", "pptx", "xlsx"],
+  "skills": "./skills/"
+}
