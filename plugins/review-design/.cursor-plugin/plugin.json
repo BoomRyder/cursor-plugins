@@ -1,0 +1,15 @@
+{
+  "name": "review-design",
+  "displayName": "Review Design",
+  "description": "Code review for pull requests, and frontend design for distinctive UI.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Anthropic"
+  },
+  "homepage": "https://github.com/anthropics/claude-plugins-official",
+  "repository": "https://github.com/anthropics/claude-plugins-official",
+  "license": "Apache-2.0",
+  "keywords": ["code-review", "frontend", "design"],
+  "skills": "./skills/",
+  "commands": "./commands/"
+}

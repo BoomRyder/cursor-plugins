@@ -1,0 +1,72 @@
+name: Sync review-design
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 16 * * 1"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Copy upstream files
+        run: |
+          set -euo pipefail
+          plugin="plugins/review-design"
+          tmp=$(mktemp -d)
+          trap 'rm -rf "$tmp"' EXIT
+          git clone --depth 1 --branch main https://github.com/anthropics/claude-plugins-official.git "$tmp/src"
+          sha=$(git -C "$tmp/src" rev-parse HEAD)
+          test -n "$sha"
+          rm -rf "$plugin/commands" "$plugin/skills" "$plugin/LICENSE"
+          mkdir -p "$plugin/commands" "$plugin/skills"
+          cp -a "$tmp/src/plugins/code-review/commands/code-review.md" "$plugin/commands/code-review.md"
+          cp -a "$tmp/src/plugins/frontend-design/skills/frontend-design" "$plugin/skills/frontend-design"
+          cp -a "$tmp/src/plugins/code-review/LICENSE" "$plugin/LICENSE"
+          test -f "$plugin/commands/code-review.md"
+          test -f "$plugin/skills/frontend-design/SKILL.md"
+          grep -q "Apache License" "$plugin/LICENSE"
+          grep -q "Apache License" "$plugin/skills/frontend-design/LICENSE.txt"
+          python - "$plugin/UPSTREAM.json" "$sha" <<'PY'
+          import json, pathlib, sys
+          record_path, sha = sys.argv[1:]
+          pathlib.Path(record_path).write_text(json.dumps({
+              "repository": "https://github.com/anthropics/claude-plugins-official",
+              "commit": sha,
+              "ref": "main",
+              "version": "1.0.0",
+              "license": "Apache-2.0",
+              "paths": [
+                  "plugins/code-review/commands/code-review.md",
+                  "plugins/frontend-design/skills/frontend-design",
+                  "plugins/code-review/LICENSE",
+              ],
+          }, indent=2) + "\n", encoding="utf-8", newline="\n")
+          print(f"synced review-design ({sha})")
+          PY
+
+      - name: Open a pull request when upstream moved
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git add -A
+          if git diff --cached --quiet; then
+            echo "review-design is already at upstream"
+            exit 0
+          fi
+          sha=$(python -c "import json; print(json.load(open('plugins/review-design/UPSTREAM.json'))['commit'][:12])")
+          branch="sync/review-design-$sha"
+          if git ls-remote --exit-code --heads origin "refs/heads/$branch" >/dev/null; then
+            echo "branch $branch already exists"
+            exit 0
+          fi
+          git checkout -b "$branch"
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -m "Sync review-design from upstream."
+          git push --set-upstream origin "$branch"
+          gh pr create --title "Sync review-design from upstream" --body "Updates the vendored code-review command and frontend-design skill to anthropics/claude-plugins-official@${sha}. The copied files and Apache license stay upstream's. Review the diff, then merge."

@@ -1,0 +1,8 @@
+{
+  "repository": "https://github.com/anthropics/claude-plugins-official",
+  "commit": "6985b2d88dc08b4a0d202f5f0301f02e360b9cb1",
+  "ref": "main",
+  "version": "1.0.0",
+  "license": "Apache-2.0",
+  "paths": ["plugins/code-review/commands/code-review.md", "plugins/frontend-design/skills/frontend-design", "plugins/code-review/LICENSE"]
+}
