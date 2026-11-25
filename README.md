@@ -2,6 +2,13 @@
 
 个人 Cursor 插件市场。插件从各自的上游仓库同步，许可证和版权说明留在插件自己的目录里。
 
+| 插件 | 上游 | 内容 |
+| --- | --- | --- |
+| `ponytail` | [DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail) | 用最少的代码把事情做完 |
+| `superpowers` | [obra/superpowers](https://github.com/obra/superpowers) | TDD、调试和协作流程 |
+| `document` | [anthropics/skills](https://github.com/anthropics/skills) | Word、PDF、PowerPoint、Excel |
+| `aihero` | [mattpocock/skills](https://github.com/mattpocock/skills) | 规格、工单、TDD、代码评审 |
+
 ## 安装
 
 1. 打开 Customize。
