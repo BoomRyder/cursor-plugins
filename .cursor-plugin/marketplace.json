@@ -5,7 +5,7 @@
     "name": "BoomRyder"
   },
   "metadata": {
-    "description": "个人 Cursor 插件市场。ponytail、superpowers、document、aihero 从各自上游同步。",
+    "description": "个人 Cursor 插件市场。插件从各自上游同步。",
     "version": "1.4.0",
     "pluginRoot": "plugins"
   },
